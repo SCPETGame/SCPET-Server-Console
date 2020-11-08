@@ -53,7 +53,7 @@ namespace SCPET_Server
                     string file =  AppDomain.CurrentDomain.BaseDirectory + "/SCP_ET.exe";
                     Console.WriteLine(file);
                     process.StartInfo.FileName = file;
-                    process.StartInfo.Arguments = "-consoleport " + port + " -logfile " + AppDomain.CurrentDomain.BaseDirectory + "SCP-ETServerLog-" + DateTime.UtcNow.Ticks + ".txt";
+                    process.StartInfo.Arguments = "-consoleport " + port + " -logfile " + AppDomain.CurrentDomain.BaseDirectory + "/logs/SCP-ETServerLog-" + DateTime.UtcNow.Ticks + ".txt";
                     Console.WriteLine(process.StartInfo.Arguments);
 // Go
                     process.Start();
@@ -73,7 +73,7 @@ namespace SCPET_Server
 
 // Setup executable and parameters
                     process.StartInfo.FileName = AppDomain.CurrentDomain.BaseDirectory + "/scp_et.x86_64";
-                    process.StartInfo.Arguments = "-consoleport " + port;
+                    process.StartInfo.Arguments = "-consoleport " + port + " -logfile " + AppDomain.CurrentDomain.BaseDirectory + "/logs/SCP-ETServerLog-" + DateTime.UtcNow.Ticks + ".txt";
 
 // Go
                     process.Start();
