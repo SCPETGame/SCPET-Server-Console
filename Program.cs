@@ -42,7 +42,7 @@ namespace SCPET_Server
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
                     Console.WriteLine("Platform windows");
-                    if (GetArg("-gamelocation") == string.Empty)
+                    if (string.IsNullOrEmpty(GetArg("-gamelocation")))
                     {
                         Console.WriteLine("Starting game server...");
 
@@ -92,7 +92,7 @@ namespace SCPET_Server
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
                 {
                     Console.WriteLine("Platform linux");
-                    if (GetArg("-gamelocation") == string.Empty)
+                    if (string.IsNullOrEmpty(GetArg("-gamelocation")))
                     {
                         Console.WriteLine("Starting game server...");
 
