@@ -40,27 +40,77 @@ namespace SCPET_Server
 
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
-                    Console.WriteLine("Starting game server...");
+                    if (GetArg("-gamelocation") == string.Empty)
+                    {
+                        Console.WriteLine("Starting game server...");
 
-                    Process process = new Process();
+                        Process process = new Process();
 
 // Stop the process from opening a new window
-                    process.StartInfo.RedirectStandardOutput = true;
-                    process.StartInfo.UseShellExecute = false;
-                    process.StartInfo.CreateNoWindow = true;
+                        process.StartInfo.RedirectStandardOutput = true;
+                        process.StartInfo.UseShellExecute = false;
+                        process.StartInfo.CreateNoWindow = true;
 
 // Setup executable and parameters
-                    string file =  AppDomain.CurrentDomain.BaseDirectory + "/SCP_ET.exe";
-                    Console.WriteLine(file);
-                    process.StartInfo.FileName = file;
-                    process.StartInfo.Arguments = "-consoleport " + port + " -logfile " + AppDomain.CurrentDomain.BaseDirectory + "/logs/SCP-ETServerLog-" + DateTime.UtcNow.Ticks + ".txt";
-                    Console.WriteLine(process.StartInfo.Arguments);
+                        string file = AppDomain.CurrentDomain.BaseDirectory + "/SCP_ET.exe";
+                        Console.WriteLine(file);
+                        process.StartInfo.FileName = file;
+                        process.StartInfo.Arguments = "-consoleport " + port + " -logfile " +
+                                                      AppDomain.CurrentDomain.BaseDirectory + "/logs/SCP-ETServerLog-" +
+                                                      DateTime.UtcNow.Ticks + ".txt";
+                        Console.WriteLine(process.StartInfo.Arguments);
 // Go
-                    process.Start();
-                    gameprocess = process;
+                        process.Start();
+                        gameprocess = process;
+                    }
+                    else
+                    {
+                        Console.WriteLine("Starting game server...");
+
+                        Process process = new Process();
+
+// Stop the process from opening a new window
+                        process.StartInfo.RedirectStandardOutput = true;
+                        process.StartInfo.UseShellExecute = false;
+                        process.StartInfo.CreateNoWindow = true;
+
+// Setup executable and parameters
+                        process.StartInfo.FileName = GetArg("-gamelocation") + "/SCP_ET.exe";
+                        process.StartInfo.Arguments = "-consoleport " + port + " -logfile " +
+                                                      GetArg("-gamelocation") + "/logs/SCP-ETServerLog-" +
+                                                      DateTime.UtcNow.Ticks + ".txt";
+
+// Go
+                        process.Start();
+                        gameprocess = process;
+                    }
                 }
 
-                if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                    if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                {
+                    if (GetArg("-gamelocation") == string.Empty)
+                    {
+                        Console.WriteLine("Starting game server...");
+
+                        Process process = new Process();
+
+// Stop the process from opening a new window
+                        process.StartInfo.RedirectStandardOutput = true;
+                        process.StartInfo.UseShellExecute = false;
+                        process.StartInfo.CreateNoWindow = true;
+
+// Setup executable and parameters
+                        process.StartInfo.FileName = AppDomain.CurrentDomain.BaseDirectory + "/scp_et.x86_64";
+                        process.StartInfo.Arguments = "-consoleport " + port + " -logfile " +
+                                                      AppDomain.CurrentDomain.BaseDirectory + "/logs/SCP-ETServerLog-" +
+                                                      DateTime.UtcNow.Ticks + ".txt";
+
+// Go
+                        process.Start();
+                        gameprocess = process;
+                    }
+                }
+                else
                 {
                     Console.WriteLine("Starting game server...");
 
@@ -72,13 +122,16 @@ namespace SCPET_Server
                     process.StartInfo.CreateNoWindow = true;
 
 // Setup executable and parameters
-                    process.StartInfo.FileName = AppDomain.CurrentDomain.BaseDirectory + "/scp_et.x86_64";
-                    process.StartInfo.Arguments = "-consoleport " + port + " -logfile " + AppDomain.CurrentDomain.BaseDirectory + "/logs/SCP-ETServerLog-" + DateTime.UtcNow.Ticks + ".txt";
+                    process.StartInfo.FileName = GetArg("-gamelocation") + "/scp_et.x86_64";
+                    process.StartInfo.Arguments = "-consoleport " + port + " -logfile " +
+                                                  GetArg("-gamelocation") + "/logs/SCP-ETServerLog-" +
+                                                  DateTime.UtcNow.Ticks + ".txt";
 
 // Go
                     process.Start();
                     gameprocess = process;
                 }
+
                 console = new TcpConsoleClient();
                 console.ConnectToTcpServer();
                 listeninput();
