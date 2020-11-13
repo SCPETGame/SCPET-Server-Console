@@ -62,7 +62,7 @@ namespace SCPET_Server
                             Color clr = Color.FromArgb(Convert.ToInt32(color[3]), Convert.ToInt32(color[0]), Convert.ToInt32(color[1]), Convert.ToInt32(color[2]));
                             ConsoleColor oldcol = Console.ForegroundColor;
                             Console.ForegroundColor = Program.FromHex(clr.Name);
-                            Console.WriteLine(response["message"]);
+                            Console.WriteLine($"[{DateTime.Now.Hour}:{DateTime.Now.Minute}:{DateTime.Now.Second}] " + response["message"]);
                             Console.ForegroundColor = oldcol;
                         }
                     }
