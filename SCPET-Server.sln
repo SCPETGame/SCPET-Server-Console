@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29201.188
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SCPET-Server", "SCPET-Server.csproj", "{F6E692D6-0CC5-4742-829E-14E382C250E7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SCPET-Server", "SimpleConsole\SCPET-Server.csproj", "{D489F9B5-4FCE-424B-84F6-4C5347175156}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ComplexConsole", "ComplexConsole\ComplexConsole.csproj", "{72FEBFE2-C531-4F49-A52F-78A3F2BED27A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,22 @@ Global
 		{F6E692D6-0CC5-4742-829E-14E382C250E7}.Release|Any CPU.Build.0 = Release|Any CPU
 		{F6E692D6-0CC5-4742-829E-14E382C250E7}.Release|x64.ActiveCfg = Release|Any CPU
 		{F6E692D6-0CC5-4742-829E-14E382C250E7}.Release|x64.Build.0 = Release|Any CPU
+		{D489F9B5-4FCE-424B-84F6-4C5347175156}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D489F9B5-4FCE-424B-84F6-4C5347175156}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D489F9B5-4FCE-424B-84F6-4C5347175156}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{D489F9B5-4FCE-424B-84F6-4C5347175156}.Debug|x64.Build.0 = Debug|Any CPU
+		{D489F9B5-4FCE-424B-84F6-4C5347175156}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D489F9B5-4FCE-424B-84F6-4C5347175156}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D489F9B5-4FCE-424B-84F6-4C5347175156}.Release|x64.ActiveCfg = Release|Any CPU
+		{D489F9B5-4FCE-424B-84F6-4C5347175156}.Release|x64.Build.0 = Release|Any CPU
+		{72FEBFE2-C531-4F49-A52F-78A3F2BED27A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{72FEBFE2-C531-4F49-A52F-78A3F2BED27A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{72FEBFE2-C531-4F49-A52F-78A3F2BED27A}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{72FEBFE2-C531-4F49-A52F-78A3F2BED27A}.Debug|x64.Build.0 = Debug|Any CPU
+		{72FEBFE2-C531-4F49-A52F-78A3F2BED27A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{72FEBFE2-C531-4F49-A52F-78A3F2BED27A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{72FEBFE2-C531-4F49-A52F-78A3F2BED27A}.Release|x64.ActiveCfg = Release|Any CPU
+		{72FEBFE2-C531-4F49-A52F-78A3F2BED27A}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

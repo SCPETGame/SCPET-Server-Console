@@ -1,0 +1,41 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>netcoreapp3.1</TargetFramework>
+        <RootNamespace>SCPET-Server</RootNamespace>
+        <LangVersion>8</LangVersion>
+        <Nullable>enable</Nullable>
+        <AssemblyName>SCPET-Server</AssemblyName>
+        <Product></Product>
+        <PackageId></PackageId>
+        <Company></Company>
+        <Authors></Authors>
+        <Copyright></Copyright>
+
+        <RootAllApplicationAssemblies>false</RootAllApplicationAssemblies>
+        <IlcGenerateCompleteTypeMetadata>true</IlcGenerateCompleteTypeMetadata>
+        <IlcDisableReflection>false</IlcDisableReflection>
+        <IlcGenerateStackTraceData>true</IlcGenerateStackTraceData>
+        <IlcOptimizationPreference>Speed</IlcOptimizationPreference>
+        <IlcFoldIdenticalMethodBodies>true</IlcFoldIdenticalMethodBodies>
+        <Optimize>true</Optimize>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <!-- Disable automatic generation of version attribute -->
+        <GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>
+        <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
+        <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
+    </PropertyGroup>
+	
+     <!-- Linux only exit handling -->
+    <PropertyGroup Condition="'$(RuntimeIdentifier)'=='linux-x64'">
+        <DefineConstants>LINUX_SIGNALS</DefineConstants>
+    </PropertyGroup>
+    <ItemGroup Condition="'$(RuntimeIdentifier)'=='linux-x64'">
+        <PackageReference Include="Mono.Posix.NETStandard" Version="1.0.0" />
+    </ItemGroup>
+    <ItemGroup>
+      <PackageReference Include="Terminal.Gui" Version="0.90.3" />
+    </ItemGroup>
+</Project>
