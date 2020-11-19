@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Net;
 using System.Net.Sockets;
 using System.Security.Cryptography;
 using System.Text.Json;
@@ -26,70 +27,90 @@ namespace ComplexConsole
         public void ClientThread(TcpClient client)
         {
             NetworkStream stream = client.GetStream();
+            StreamReader reader = new StreamReader(stream);
+            StreamWriter writer = new StreamWriter(stream);
             // string str = reader.ReadToEnd();
             // Debug.WriteLine(str);
             bool isLoggedIn = false;
             bool paused = false;
             string thePassword = Program.GetArg("-password");
-            while (true)
+            try
             {
-                if (!stream.CanRead || !stream.CanWrite)
+                while (true)
                 {
-                    break;
-                }
-                using (StreamReader reader = new StreamReader(stream))
-                using (StreamWriter writer = new StreamWriter(stream))
-                {
-                    if (paused || isLoggedIn)
+                    if (!stream.CanRead || !stream.CanWrite)
                     {
-                        string? str = reader.ReadLine();
-                        if (str != null)
+                        break;
+                    }
+                    {
+                        if (paused || isLoggedIn)
                         {
-                            if (str == thePassword)
-                                isLoggedIn = true;
-                            paused = false;
+                            string? str = reader.ReadLine();
+                            if (str != null)
+                            {
+                                Debug.WriteLine(str);
+                                if (str == thePassword)
+                                    isLoggedIn = true;
+                                paused = false;
+                            }
+                            else
+                            {
+                                Thread.Sleep(100);
+                            }
+                        }
+                        Dictionary<string, string> data = new Dictionary<string, string>();
+                        data.Add("color", "RGBA(0.0,1.0,0.0,1.0)");
+                        if (!isLoggedIn)
+                        {
+                            data.Add("message", "Enter Password.");
+                            writer.WriteLine(JsonSerializer.Serialize<Dictionary<string, string>>(data));
+                            paused = true;
                         }
                         else
                         {
-                            Thread.Sleep(100);
+                            data.Add("message", "kekw.");
+                            writer.WriteLine(JsonSerializer.Serialize<Dictionary<string, string>>(data));
                         }
-                    }
-                    Dictionary<string, string> data = new Dictionary<string, string>();
-                    data.Add("color", "RGBA(0.0,1.0,0.0,1.0)");
-                    if (!isLoggedIn)
-                    {
-                        data.Add("message", "Enter Password.");
-                        writer.WriteLine(JsonSerializer.Serialize<Dictionary<string, string>>(data));
-                        paused = true;
-                    }
-                    else
-                    {
-                        data.Add("message", "kekw.");
-                        writer.WriteLine(JsonSerializer.Serialize<Dictionary<string, string>>(data));
                     }
                 }
             }
-            stream.Close();
-            client.Close();
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
+            }
+            finally
+            {
+                stream.Close();
+                client.Close();
+                Debug.WriteLine("Socket closed.");
+            }
         }
 
         public void Listen()
         {
-            while (true)
+            // while (true)
             {
-                server = TcpListener.Create(port);
+                server = new TcpListener(IPAddress.Any, port);
                 server.Start();
                 try
                 {
                     while (true)
                     {
-                        TcpClient client = server.AcceptTcpClient();
-                        Thread clientThread = new Thread(() =>
+                        if (server.Pending())
                         {
-                            ClientThread(client);
-                        });
-                        clientThread.IsBackground = true;
-                        clientThread.Start();
+                            TcpClient client = server.AcceptTcpClient();
+                            Thread clientThread = new Thread(() =>
+                            {
+                                Thread.Sleep(100);
+                                ClientThread(client);
+                            });
+                            clientThread.IsBackground = true;
+                            clientThread.Start();
+                        }
+                        else
+                        {
+                            Thread.Sleep(100);
+                        }
                     }
                 }
                 catch (SocketException e)
