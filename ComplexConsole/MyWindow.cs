@@ -10,7 +10,7 @@ using static Terminal.Gui.View;
 
 namespace ComplexConsole
 {
-    public class MyWindow
+    public partial class MyWindow
     {
         public Window window;
         public ScrollView scroll;
@@ -57,7 +57,14 @@ namespace ComplexConsole
                 ColorScheme = new ColorScheme()
                 {
                     Normal = Terminal.Gui.Attribute.Make(Color.Green, Color.Black)
-                }
+                },
+                ContentSize = new Size(0, 0)
+            };
+            Filler filler = new Filler(new Rect(0, 0, 10, 10));
+            scroll.Add(filler);
+            scroll.DrawContent += (r) =>
+            {
+                scroll.ContentSize = filler.GetContentSize();
             };
             input = new TextField()
             {
@@ -76,30 +83,37 @@ namespace ComplexConsole
 
         public void MyThread()
         {
-            string[] split = conn.Split(':');
-            client = new TcpClient(split[split.Length - 2], int.TryParse(split[split.Length - 1], out int port) ? port : 8701);
-            stream = client.GetStream();
-            reader = new StreamReader(stream);
-            writer = new StreamWriter(stream);
-            Byte[] bytes = new Byte[1024];
-            while (true)
+            try
             {
-                try
+                string[] split = conn.Split(':');
+                client = new TcpClient(split[split.Length - 2], int.TryParse(split[split.Length - 1], out int port) ? port : 8701);
+                stream = client.GetStream();
+                reader = new StreamReader(stream);
+                writer = new StreamWriter(stream);
+                Byte[] bytes = new Byte[1024];
+                while (true)
                 {
-                    string serverMessage = reader.ReadLine();
-                    Dictionary<string, string> response = JsonSerializer.Deserialize<Dictionary<string, string>>(serverMessage);
-                    response["color"] = response["color"].Replace("RGBA(", "").Replace(")", "");
-                    string[] color = response["color"].Split(',');
-                    // System.Drawing.Color clr = System.Drawing.Color.FromArgb(Convert.ToInt32(color[3]), Convert.ToInt32(color[0]), Convert.ToInt32(color[1]), Convert.ToInt32(color[2]));
-                    // ConsoleColor oldcol = Console.ForegroundColor;
-                    // Console.ForegroundColor = Program.FromHex(clr.Name);
-                    Log($"[{DateTime.Now.Hour}:{DateTime.Now.Minute}:{DateTime.Now.Second}] " + response["message"]);
+                    try
+                    {
+                        string serverMessage = reader.ReadLine();
+                        Dictionary<string, string> response = JsonSerializer.Deserialize<Dictionary<string, string>>(serverMessage);
+                        response["color"] = response["color"].Replace("RGBA(", "").Replace(")", "");
+                        string[] color = response["color"].Split(',');
+                        // System.Drawing.Color clr = System.Drawing.Color.FromArgb(Convert.ToInt32(color[3]), Convert.ToInt32(color[0]), Convert.ToInt32(color[1]), Convert.ToInt32(color[2]));
+                        // ConsoleColor oldcol = Console.ForegroundColor;
+                        // Console.ForegroundColor = Program.FromHex(clr.Name);
+                        Log($"[{DateTime.Now.Hour}:{DateTime.Now.Minute}:{DateTime.Now.Second}] " + response["message"]);
+                    }
+                    catch (Exception e)
+                    {
+                        Log(e.ToString());
+                    }
+                    Thread.Sleep(100);
                 }
-                catch (Exception e)
-                {
-                    Log(e.ToString());
-                }
-                Thread.Sleep(100);
+            }
+            catch (Exception e)
+            {
+                Log(e.ToString());
             }
         }
 
@@ -109,7 +123,13 @@ namespace ComplexConsole
             data.Add("color", "RGBA(0.0,1.0,0.0,1.0)");
             data.Add("message", message);
             Log(">" + message);
-            writer.WriteLine(message);
+            try
+            {
+                writer.WriteLine(message);
+            }
+            catch (Exception)
+            {
+            }
             // writer.Close();
             // stream.Close();
         }
@@ -119,11 +139,11 @@ namespace ComplexConsole
             scroll.Add(new Label(message)
             {
                 X = 0,
-                Y = 0,
+                Y = scroll.ContentSize.Height - 2,
                 Width = Dim.Fill(),
                 Height = 2,
             });
-            File.AppendAllText("Log", message);
+            File.AppendAllText("Log", "\n" + message);
         }
 
         public void ConsoleTab()

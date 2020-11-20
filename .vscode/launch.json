@@ -36,6 +36,22 @@
             "stopAtEntry": false
         },
         {
+            "name": "Console2 Client",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build2",
+            // If you have changed target frameworks, make sure to update the program path.
+            "program": "${workspaceFolder}/ComplexConsole/bin/Debug/netcoreapp3.1/SCPET-Server.dll",
+            "args": [
+                "-remote",
+                "127.0.0.1:8701"
+            ],
+            "cwd": "${workspaceFolder}/ComplexConsole",
+            // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
+            "console": "externalTerminal",
+            "stopAtEntry": false
+        },
+        {
             "name": ".NET Core Attach",
             "type": "coreclr",
             "request": "attach",

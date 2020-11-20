@@ -10,9 +10,7 @@ using System.Net.NetworkInformation;
 using System.Runtime.InteropServices;
 using System.Threading;
 using Asmichi.Utilities.ProcessManagement;
-using Medallion.Shell;
 using Terminal.Gui;
-using static Medallion.Shell.Shell;
 
 namespace ComplexConsole
 {
@@ -110,8 +108,6 @@ namespace ComplexConsole
                     else
                     {
                         Console.WriteLine("Starting game server...");
-
-                        Process process = new Process();
 
                         string file = GetArg("-gamelocation") + "/scp_et.x86_64";
                         Console.WriteLine(file);

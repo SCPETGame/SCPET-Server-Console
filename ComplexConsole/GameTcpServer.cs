@@ -41,7 +41,7 @@ namespace ComplexConsole
                         break;
                     }
                     {
-                        if (paused || isLoggedIn)
+                        if (paused && !isLoggedIn)
                         {
                             string str = reader.ReadLine();
                             Debug.WriteLine(str);
