@@ -3,12 +3,16 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Net.Mime;
 using System.Net.NetworkInformation;
 using System.Runtime.InteropServices;
 using System.Threading;
+using Asmichi.Utilities.ProcessManagement;
+using Medallion.Shell;
 using Terminal.Gui;
+using static Medallion.Shell.Shell;
 
 namespace ComplexConsole
 {
@@ -57,6 +61,9 @@ namespace ComplexConsole
             {
                 Console.WriteLine("Loading");
 
+                List<string> cmdargs = new List<string>();
+                string command = string.Empty;
+
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
                     Console.WriteLine("Platform windows");
@@ -64,73 +71,41 @@ namespace ComplexConsole
                     {
                         Console.WriteLine("Starting game server...");
 
-                        Process process = new Process();
-
-// Stop the process from opening a new window
-                        process.StartInfo.RedirectStandardOutput = true;
-                        process.StartInfo.UseShellExecute = false;
-                        process.StartInfo.CreateNoWindow = true;
-
-// Setup executable and parameters
                         string file = AppDomain.CurrentDomain.BaseDirectory + "/SCP_ET.exe";
                         Console.WriteLine(file);
-                        process.StartInfo.FileName = file;
-                        process.StartInfo.Arguments = "-consoleport " + port + " -logfile " +
-                                                      AppDomain.CurrentDomain.BaseDirectory + "/logs/SCP-ETServerLog-" +
-                                                      DateTime.UtcNow.Ticks + ".txt";
-                        Console.WriteLine(process.StartInfo.Arguments);
-// Go
-                        process.Start();
-                        gameprocess = process;
+                        command = file;
+                        cmdargs.Add("-consoleport");
+                        cmdargs.Add(port.ToString());
+                        cmdargs.Add("-logfile");
+                        cmdargs.Add(AppDomain.CurrentDomain.BaseDirectory + "/logs/SCP-ETServerLog-" + DateTime.UtcNow.Ticks + ".txt");
                     }
                     else
                     {
                         Console.WriteLine("Starting game server...");
 
-                        Process process = new Process();
-
-// Stop the process from opening a new window
-                        process.StartInfo.RedirectStandardOutput = true;
-                        process.StartInfo.UseShellExecute = false;
-                        process.StartInfo.CreateNoWindow = true;
-
-// Setup executable and parameters
-                        process.StartInfo.FileName = GetArg("-gamelocation") + "/SCP_ET.exe";
-                        process.StartInfo.Arguments = "-consoleport " + port + " -logfile " +
-                                                      GetArg("-gamelocation") + "/logs/SCP-ETServerLog-" +
-                                                      DateTime.UtcNow.Ticks + ".txt";
-                        Console.WriteLine(process.StartInfo.Arguments);
-
-// Go
-                        process.Start();
-                        gameprocess = process;
+                        string file = GetArg("-gamelocation") + "/SCP_ET.exe";
+                        Console.WriteLine(file);
+                        command = file;
+                        cmdargs.Add("-consoleport");
+                        cmdargs.Add(port.ToString());
+                        cmdargs.Add("-logfile");
+                        cmdargs.Add(GetArg("-gamelocation") + "/logs/SCP-ETServerLog-" + DateTime.UtcNow.Ticks + ".txt");
                     }
                 }
-
-                if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
                 {
                     Console.WriteLine("Platform linux");
                     if (string.IsNullOrEmpty(GetArg("-gamelocation")))
                     {
                         Console.WriteLine("Starting game server...");
 
-                        Process process = new Process();
-
-// Stop the process from opening a new window
-                        process.StartInfo.RedirectStandardOutput = true;
-                        process.StartInfo.UseShellExecute = false;
-                        process.StartInfo.CreateNoWindow = true;
-
-// Setup executable and parameters
-                        process.StartInfo.FileName = AppDomain.CurrentDomain.BaseDirectory + "/scp_et.x86_64";
-                        process.StartInfo.Arguments = "-consoleport " + port + " -logfile " +
-                                                      AppDomain.CurrentDomain.BaseDirectory + "/logs/SCP-ETServerLog-" +
-                                                      DateTime.UtcNow.Ticks + ".txt";
-                        Console.WriteLine(process.StartInfo.Arguments);
-
-// Go
-                        process.Start();
-                        gameprocess = process;
+                        string file = AppDomain.CurrentDomain.BaseDirectory + "/scp_et.x86_64";
+                        Console.WriteLine(file);
+                        command = file;
+                        cmdargs.Add("-consoleport");
+                        cmdargs.Add(port.ToString());
+                        cmdargs.Add("-logfile");
+                        cmdargs.Add(AppDomain.CurrentDomain.BaseDirectory + "/logs/SCP-ETServerLog-" + DateTime.UtcNow.Ticks + ".txt");
                     }
                     else
                     {
@@ -138,28 +113,29 @@ namespace ComplexConsole
 
                         Process process = new Process();
 
-// Stop the process from opening a new window
-                        process.StartInfo.RedirectStandardOutput = true;
-                        process.StartInfo.UseShellExecute = false;
-                        process.StartInfo.CreateNoWindow = true;
-
-// Setup executable and parameters
-                        process.StartInfo.FileName = GetArg("-gamelocation") + "/scp_et.x86_64";
-                        process.StartInfo.Arguments = "-consoleport " + port + " -logfile " +
-                                                      GetArg("-gamelocation") + "/logs/SCP-ETServerLog-" +
-                                                      DateTime.UtcNow.Ticks + ".txt";
-                        Console.WriteLine(process.StartInfo.Arguments);
-
-// Go
-                        process.Start();
-                        gameprocess = process;
+                        string file = GetArg("-gamelocation") + "/scp_et.x86_64";
+                        Console.WriteLine(file);
+                        command = file;
+                        cmdargs.Add("-consoleport");
+                        cmdargs.Add(port.ToString());
+                        cmdargs.Add("-logfile");
+                        cmdargs.Add(GetArg("-gamelocation") + "/logs/SCP-ETServerLog-" + DateTime.UtcNow.Ticks + ".txt");
                     }
                 }
+                else
+                {
+                    Console.WriteLine($"Unable to start game server: Platform {RuntimeInformation.OSDescription} not supported.");
+                }
 
-                console = new TcpConsoleClient();
-                console.ConnectToTcpServer();
-                gameServer = new GameTcpServer(int.TryParse(GetArg("-remoteport"), out int rconport) ? rconport : 8701);
-                listeninput();
+                ChildProcessStartInfo info = new ChildProcessStartInfo(Path.GetFullPath(command), cmdargs.ToArray());
+
+                using (IChildProcess cmd = ChildProcess.Start(info))
+                {
+                    console = new TcpConsoleClient();
+                    console.ConnectToTcpServer();
+                    gameServer = new GameTcpServer(int.TryParse(GetArg("-remoteport"), out int rconport) ? rconport : 8701);
+                    listeninput();
+                }
             }
         }
 

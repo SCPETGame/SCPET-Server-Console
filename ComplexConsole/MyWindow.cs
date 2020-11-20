@@ -44,7 +44,7 @@ namespace ComplexConsole
             MenuBar bar = new MenuBar(new MenuBarItem[]
             {
                 new MenuBarItem("_Exit", "Exit", () => { Environment.Exit(0); }),
-                new MenuBarItem("_Console", "Console related functions", ServerTab),
+                new MenuBarItem("_Console", "Console related functions", ConsoleTab),
                 new MenuBarItem("_Game", "Game Server related functions", GameTab),
             });
             top.Add(bar);
@@ -126,7 +126,7 @@ namespace ComplexConsole
             File.AppendAllText("Log", message);
         }
 
-        public void ServerTab()
+        public void ConsoleTab()
         {
 
         }

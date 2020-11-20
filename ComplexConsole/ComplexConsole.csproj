@@ -36,6 +36,8 @@
         <PackageReference Include="Mono.Posix.NETStandard" Version="1.0.0" />
     </ItemGroup>
     <ItemGroup>
+      <PackageReference Include="Asmichi.ChildProcess" Version="0.2.0" />
+      <PackageReference Include="MedallionShell" Version="1.6.2" />
       <PackageReference Include="Terminal.Gui" Version="0.90.3" />
     </ItemGroup>
 </Project>

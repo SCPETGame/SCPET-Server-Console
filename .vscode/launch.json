@@ -26,7 +26,7 @@
             "program": "${workspaceFolder}/ComplexConsole/bin/Debug/netcoreapp3.1/SCPET-Server.dll",
             "args": [
                 "-gamelocation",
-                "D:\\Users\\mcLC2\\Downloads\\scp-et-win-server",
+                "../Server",
                 "-password",
                 "password"
             ],

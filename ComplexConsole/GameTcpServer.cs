@@ -29,8 +29,6 @@ namespace ComplexConsole
             NetworkStream stream = client.GetStream();
             StreamReader reader = new StreamReader(stream);
             StreamWriter writer = new StreamWriter(stream);
-            // string str = reader.ReadToEnd();
-            // Debug.WriteLine(str);
             bool isLoggedIn = false;
             bool paused = false;
             string thePassword = Program.GetArg("-password");
@@ -45,18 +43,12 @@ namespace ComplexConsole
                     {
                         if (paused || isLoggedIn)
                         {
-                            string? str = reader.ReadLine();
-                            if (str != null)
-                            {
-                                Debug.WriteLine(str);
-                                if (str == thePassword)
-                                    isLoggedIn = true;
-                                paused = false;
-                            }
-                            else
-                            {
-                                Thread.Sleep(100);
-                            }
+                            string str = reader.ReadLine();
+                            Debug.WriteLine(str);
+                            if (str == thePassword)
+                                isLoggedIn = true;
+                            paused = false;
+                            Thread.Sleep(100);
                         }
                         Dictionary<string, string> data = new Dictionary<string, string>();
                         data.Add("color", "RGBA(0.0,1.0,0.0,1.0)");
@@ -73,6 +65,10 @@ namespace ComplexConsole
                         }
                     }
                 }
+            }
+            catch (IOException)
+            {
+                // its not that important... right?
             }
             catch (Exception e)
             {
