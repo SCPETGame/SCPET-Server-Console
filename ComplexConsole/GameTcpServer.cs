@@ -7,6 +7,7 @@ using System.Net.Sockets;
 using System.Security.Cryptography;
 using System.Text.Json;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace ComplexConsole
 {
@@ -15,76 +16,22 @@ namespace ComplexConsole
         public TcpListener server;
         private Thread serverReceiveThread;
         private int port;
+        public List<GameConsoleClient> clients = new List<GameConsoleClient>();
 
         public GameTcpServer(int port)
         {
             this.port = port;
-            serverReceiveThread = new Thread(new ThreadStart(Listen));
+            serverReceiveThread = new Thread(Listen)
+            {
+                Name = "ListenMaster"
+            };
             serverReceiveThread.IsBackground = true;
             serverReceiveThread.Start();
         }
 
-        public void ClientThread(TcpClient client)
-        {
-            NetworkStream stream = client.GetStream();
-            StreamReader reader = new StreamReader(stream);
-            StreamWriter writer = new StreamWriter(stream);
-            bool isLoggedIn = false;
-            bool paused = false;
-            string thePassword = Program.GetArg("-password");
-            try
-            {
-                while (true)
-                {
-                    if (!stream.CanRead || !stream.CanWrite)
-                    {
-                        break;
-                    }
-                    {
-                        if (paused && !isLoggedIn)
-                        {
-                            string str = reader.ReadLine();
-                            Debug.WriteLine(str);
-                            if (str == thePassword)
-                                isLoggedIn = true;
-                            paused = false;
-                            Thread.Sleep(100);
-                        }
-                        Dictionary<string, string> data = new Dictionary<string, string>();
-                        data.Add("color", "RGBA(0.0,1.0,0.0,1.0)");
-                        if (!isLoggedIn)
-                        {
-                            data.Add("message", "Enter Password.");
-                            writer.WriteLine(JsonSerializer.Serialize<Dictionary<string, string>>(data));
-                            paused = true;
-                        }
-                        else
-                        {
-                            data.Add("message", "kekw.");
-                            writer.WriteLine(JsonSerializer.Serialize<Dictionary<string, string>>(data));
-                        }
-                    }
-                }
-            }
-            catch (IOException)
-            {
-                // its not that important... right?
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.ToString());
-            }
-            finally
-            {
-                stream.Close();
-                client.Close();
-                Debug.WriteLine("Socket closed.");
-            }
-        }
-
         public void Listen()
         {
-            // while (true)
+            while (true)
             {
                 server = new TcpListener(IPAddress.Any, port);
                 server.Start();
@@ -95,13 +42,12 @@ namespace ComplexConsole
                         if (server.Pending())
                         {
                             TcpClient client = server.AcceptTcpClient();
-                            Thread clientThread = new Thread(() =>
+                            GameConsoleClient client2 = new GameConsoleClient()
                             {
-                                Thread.Sleep(100);
-                                ClientThread(client);
-                            });
-                            clientThread.IsBackground = true;
-                            clientThread.Start();
+                                client = client
+                            };
+                            clients.Add(client2);
+                            client2.RunThreads();
                         }
                         else
                         {
@@ -117,6 +63,14 @@ namespace ComplexConsole
                 {
                     server.Stop();
                 }
+            }
+        }
+
+        public void SendToAll(string data)
+        {
+            for (int i = 0; i < clients.Count; i++)
+            {
+                clients[i].Write(data);
             }
         }
 

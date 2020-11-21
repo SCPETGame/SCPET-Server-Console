@@ -56,6 +56,7 @@ namespace ComplexConsole
                             Array.Copy(bytes, 0, incommingData, 0, length);
                             // Convert byte array to string message. 						
                             string serverMessage = Encoding.ASCII.GetString(incommingData);
+                            Program.gameServer.SendToAll(serverMessage);
                             Dictionary<string, string> response = JsonSerializer.Deserialize<Dictionary<string, string>>(serverMessage);
                             response["color"] = response["color"].Replace("RGBA(", "").Replace(")", "");
                             string[] color = response["color"].Split(',');

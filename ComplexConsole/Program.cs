@@ -40,6 +40,15 @@ namespace ComplexConsole
                 new MyWindow(GetArg("-remote"));
                 return;
             }
+            if (!string.IsNullOrWhiteSpace(GetArg("-child")) || !string.IsNullOrWhiteSpace(GetArg("-parent")))
+            {
+                string ch = GetArg("-child");
+                string parent = GetArg("-parent");
+                Process.GetProcessById(int.Parse(parent)).WaitForExit();
+                Process.GetProcessById(int.Parse(ch)).Kill();
+                Process.GetProcessById(int.Parse(ch)).WaitForExit();
+                return;
+            }
 
             IPGlobalProperties ipGlobalProperties = IPGlobalProperties.GetIPGlobalProperties();
             TcpConnectionInformation[] tcpConnInfoArray = ipGlobalProperties.GetActiveTcpConnections();
@@ -123,13 +132,19 @@ namespace ComplexConsole
                     Console.WriteLine($"Unable to start game server: Platform {RuntimeInformation.OSDescription} not supported.");
                 }
 
-                ChildProcessStartInfo info = new ChildProcessStartInfo(Path.GetFullPath(command), cmdargs.ToArray());
+                // ChildProcessStartInfo info = new ChildProcessStartInfo(Path.GetFullPath(command), cmdargs.ToArray());
+                ProcessStartInfo info2 = new ProcessStartInfo(Path.GetFullPath(command), string.Join(' ', cmdargs));
 
-                using (IChildProcess cmd = ChildProcess.Start(info))
+                using (Process cmd = Process.Start(info2))
                 {
+                    ProcessStartInfo currentInfo = new ProcessStartInfo(Environment.GetCommandLineArgs()[0], $"-child {cmd.Id} -parent {Process.GetCurrentProcess().Id}");
+                    Process current = Process.Start(currentInfo);
                     console = new TcpConsoleClient();
                     console.ConnectToTcpServer();
                     gameServer = new GameTcpServer(int.TryParse(GetArg("-remoteport"), out int rconport) ? rconport : 8701);
+                    AppDomain.CurrentDomain.DomainUnload += (s, e) => { cmd.Kill(); cmd.WaitForExit(); };
+                    AppDomain.CurrentDomain.ProcessExit += (s, e) => { cmd.Kill(); cmd.WaitForExit(); };
+                    AppDomain.CurrentDomain.UnhandledException += (s, e) => { cmd.Kill(); cmd.WaitForExit(); };
                     listeninput();
                 }
             }
@@ -150,7 +165,7 @@ namespace ComplexConsole
             }
 
             Console.WriteLine("Shutting down, killing server...");
-            gameprocess.Kill();
+            // gameprocess.Kill();
         }
 
         public static string GetArg(string argname)
