@@ -56,14 +56,25 @@ namespace SCPET_Server
                             Array.Copy(bytes, 0, incommingData, 0, length);
                             // Convert byte array to string message. 						
                             string serverMessage = Encoding.ASCII.GetString(incommingData);
-                            Dictionary<string, string> response = JsonSerializer.Deserialize<Dictionary<string, string>>(serverMessage);
-                            response["color"] = response["color"].Replace("RGBA(", "").Replace(")", "");
-                            string[] color = response["color"].Split(',');
-                            Color clr = Color.FromArgb(Convert.ToInt32(color[3]), Convert.ToInt32(color[0]), Convert.ToInt32(color[1]), Convert.ToInt32(color[2]));
-                            ConsoleColor oldcol = Console.ForegroundColor;
-                            Console.ForegroundColor = Program.FromHex(clr.Name);
-                            Console.WriteLine($"[{DateTime.Now.Hour}:{DateTime.Now.Minute}:{DateTime.Now.Second}] " + response["message"]);
-                            Console.ForegroundColor = oldcol;
+                            try
+                            {
+                                Dictionary<string, string> response =
+                                    JsonSerializer.Deserialize<Dictionary<string, string>>(serverMessage);
+                                response["color"] = response["color"].Replace("RGBA(", "").Replace(")", "");
+                                string[] color = response["color"].Split(',');
+                                Color clr = Color.FromArgb(Convert.ToInt32(color[3]), Convert.ToInt32(color[0]), Convert.ToInt32(color[1]), Convert.ToInt32(color[2]));
+                                ConsoleColor oldcol = Console.ForegroundColor;
+                                Console.ForegroundColor = Program.FromHex(clr.Name);
+                                Console.WriteLine($"[{DateTime.Now.Hour}:{DateTime.Now.Minute}:{DateTime.Now.Second}] " + response["message"]);
+                                Console.ForegroundColor = oldcol;
+                            }
+                            catch (JsonException ex) //so the console doesnt crash when json breaks
+                            {
+                                ConsoleColor oldcol = Console.ForegroundColor;
+                                Console.ForegroundColor = ConsoleColor.Red;
+                                Console.WriteLine($"[{DateTime.Now.Hour}:{DateTime.Now.Minute}:{DateTime.Now.Second}] " + serverMessage);
+                                Console.ForegroundColor = oldcol;
+                            }
                         }
                     }
                 }
