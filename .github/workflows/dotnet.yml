@@ -34,16 +34,10 @@ jobs:
       run: dotnet restore -r ${{ matrix.target }}
 
     - name: Build ${{ matrix.target }}
-      run: dotnet publish -r ${{ matrix.target }} -c release -o "${{ github.workspace }}/builds/${{ matrix.framework }}/${{ matrix.target }}"
+      run: dotnet publish -r ${{ matrix.target }} -c release -r ${{ matrix.target }} --self-contained true -p:PublishSingleFile=true -p:IncludeAllContentForSelfExtract=false -o "${{ github.workspace }}/builds/${{ matrix.framework }}/${{ matrix.target }}"
 
     - name: Upload ${{ matrix.target }} Build
       uses: actions/upload-artifact@v2
       with:
         name: SCP-ET-Server-${{ matrix.target }}-${{ matrix.framework }}
-        path: ${{ github.workspace }}/builds/${{ matrix.framework }}/${{ matrix.target }}
-
-    - name: Upload ${{ matrix.target }}
-      uses: actions/upload-artifact@v2
-      with:
-        name: SCP-ET-Server-all${{ matrix.framework }}
-        path: ${{ github.workspace }}/builds/${{ matrix.framework }}
+        path: ${{ github.workspace }}/builds/${{ matrix.framework }}/${{ matrix.target }}/publish
