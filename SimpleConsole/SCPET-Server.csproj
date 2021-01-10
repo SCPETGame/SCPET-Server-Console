@@ -1,16 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
         <OutputType>Exe</OutputType>
+      <DisableWinExeOutputInference>true</DisableWinExeOutputInference>
         <TargetFramework Condition="$(RuntimeIdentifier.StartsWith('win', StringComparison.OrdinalIgnoreCase))">net5.0-windows</TargetFramework>
         <TargetFramework Condition="!$(RuntimeIdentifier.StartsWith('win', StringComparison.OrdinalIgnoreCase))">net5.0</TargetFramework>
       <LangVersion>8</LangVersion>
       <Nullable>enable</Nullable>
       <RootNamespace>SCPET_Server</RootNamespace>
       <AssemblyName>SCPET-Server</AssemblyName>
-      <PublishSingleFile>true</PublishSingleFile>
-      <SelfContained>true</SelfContained>
-      <IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
-      <RuntimeIdentifier>win-x64</RuntimeIdentifier>
       <Product></Product>
       <PackageId></PackageId>
       <Company></Company>
@@ -37,7 +34,7 @@
     <PropertyGroup Condition="'$(RuntimeIdentifier)'=='linux-x64'">
         <DefineConstants>LINUX_SIGNALS</DefineConstants>
     </PropertyGroup>
-    <ItemGroup Condition="'$(RuntimeIdentifier)'=='linux-x64'">
+    <ItemGroup Condition="$(RuntimeIdentifier.StartsWith('linux', StringComparison.OrdinalIgnoreCase))">
         <PackageReference Include="Mono.Posix.NETStandard" Version="1.0.0" />
     </ItemGroup>
 </Project>
