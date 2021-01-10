@@ -40,4 +40,4 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: SCP-ET-Server-${{ matrix.target }}-${{ matrix.framework }}
-        path: ${{ github.workspace }}/builds/${{ matrix.framework }}/${{ matrix.target }}/publish
+        path: ${{ github.workspace }}/builds/${{ matrix.framework }}/${{ matrix.target }}
