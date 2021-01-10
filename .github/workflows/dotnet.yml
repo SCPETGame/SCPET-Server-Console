@@ -34,7 +34,7 @@ jobs:
       run: dotnet restore -r ${{ matrix.target }}
 
     - name: Build ${{ matrix.target }}
-      run: dotnet publish -r ${{ matrix.target }} -c release --self-contained true -p:PublishSingleFile=true -p:IncludeAllContentForSelfExtract=false -o "${{ github.workspace }}/builds/${{ matrix.framework }}/${{ matrix.target }}"
+      run: dotnet publish --project ${{ github.workspace }}/SimpleConsole/SCPET-Server.csproj -r ${{ matrix.target }} -c release --self-contained true -p:PublishSingleFile=true -p:IncludeAllContentForSelfExtract=false -o "${{ github.workspace }}/builds/${{ matrix.framework }}/${{ matrix.target }}"
 
     - name: Upload ${{ matrix.target }} Build
       uses: actions/upload-artifact@v2
