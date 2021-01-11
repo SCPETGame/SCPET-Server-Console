@@ -59,13 +59,13 @@ namespace SCPET_Server
                     {
                         Console.WriteLine("Starting game server...");
 
-                        string file = AppDomain.CurrentDomain.BaseDirectory + "/SCP_ET.exe";
+                        string file = "SCP_ET.exe";
                         Console.WriteLine(file);
                         command = file;
                         cmdargs.Add("-consoleport");
                         cmdargs.Add(port.ToString());
                         cmdargs.Add("-logfile");
-                        cmdargs.Add(AppDomain.CurrentDomain.BaseDirectory + "/logs/SCP-ETServerLog-" + DateTime.UtcNow.Ticks + ".txt");
+                        cmdargs.Add("logs/SCP-ETServerLog-" + DateTime.UtcNow.Ticks + ".txt");
                     }
                     else
                     {
@@ -87,13 +87,13 @@ namespace SCPET_Server
                     {
                         Console.WriteLine("Starting game server...");
 
-                        string file = AppDomain.CurrentDomain.BaseDirectory + "/scp_et.x86_64";
+                        string file = "scp_et.x86_64";
                         Console.WriteLine(file);
                         command = file;
                         cmdargs.Add("-consoleport");
                         cmdargs.Add(port.ToString());
                         cmdargs.Add("-logfile");
-                        cmdargs.Add(AppDomain.CurrentDomain.BaseDirectory + "/logs/SCP-ETServerLog-" + DateTime.UtcNow.Ticks + ".txt");
+                        cmdargs.Add("logs/SCP-ETServerLog-" + DateTime.UtcNow.Ticks + ".txt");
                     }
                     else
                     {
