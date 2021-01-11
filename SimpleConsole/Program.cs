@@ -15,6 +15,7 @@ namespace SCPET_Server
     class Program
     {
         public static int port = 0;
+        public static string IP = "localhost";
         public static bool portfound = true;
         public static TcpConsoleClient console;
         private static Thread inputthread;
@@ -24,6 +25,9 @@ namespace SCPET_Server
         {
             IPGlobalProperties ipGlobalProperties = IPGlobalProperties.GetIPGlobalProperties();
             TcpConnectionInformation[] tcpConnInfoArray = ipGlobalProperties.GetActiveTcpConnections();
+            IP = GetArg("-ip");
+            if (string.IsNullOrEmpty(IP))
+                IP = "127.0.0.1";
             string tempport = GetArg("-port");
             if (!string.IsNullOrEmpty(tempport) && int.TryParse(tempport, out port))
             {

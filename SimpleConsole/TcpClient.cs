@@ -41,7 +41,7 @@ namespace SCPET_Server
         {
             try
             {
-                socketConnection = new TcpClient("localhost", Program.port);
+                socketConnection = new TcpClient(Program.IP, Program.port);
                 Byte[] bytes = new Byte[1024];
                 while (true)
                 {
