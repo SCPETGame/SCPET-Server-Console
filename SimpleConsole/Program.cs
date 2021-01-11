@@ -24,15 +24,23 @@ namespace SCPET_Server
         {
             IPGlobalProperties ipGlobalProperties = IPGlobalProperties.GetIPGlobalProperties();
             TcpConnectionInformation[] tcpConnInfoArray = ipGlobalProperties.GetActiveTcpConnections();
-            //look for a port that is not in use
-            port = new Random().Next(50000, 60000);
-            foreach (TcpConnectionInformation tcpi in tcpConnInfoArray)
+            string tempport = GetArg("-port");
+            if (!string.IsNullOrEmpty(tempport) && int.TryParse(tempport, out port))
             {
-                if (tcpi.LocalEndPoint.Port == port)
+                portfound = true;
+            }
+            else
+            {
+                //look for a port that is not in use
+                port = new Random().Next(50000, 60000);
+                foreach (TcpConnectionInformation tcpi in tcpConnInfoArray)
                 {
-                    portfound = false;
-                    Console.WriteLine("console port was already in use");
-                    break;
+                    if (tcpi.LocalEndPoint.Port == port)
+                    {
+                        portfound = false;
+                        Console.WriteLine("console port was already in use");
+                        break;
+                    }
                 }
             }
 
