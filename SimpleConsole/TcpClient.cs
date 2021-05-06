@@ -17,6 +17,7 @@ namespace SCPET_Server
 
         private TcpClient socketConnection;
         private Thread clientReceiveThread;
+        private object recieveLock = new object();
 
         #endregion
 
@@ -45,38 +46,43 @@ namespace SCPET_Server
                 Byte[] bytes = new Byte[1024];
                 while (true)
                 {
-                    // Get a stream object for reading 				
-                    using (NetworkStream stream = socketConnection.GetStream())
+                    lock (recieveLock)
                     {
-                        int length;
-                        // Read incomming stream into byte arrary. 					
-                        while ((length = stream.Read(bytes, 0, bytes.Length)) != 0)
+                        // Get a stream object for reading 
+                        using (NetworkStream stream = socketConnection.GetStream())
                         {
-                            var incommingData = new byte[length];
-                            Array.Copy(bytes, 0, incommingData, 0, length);
-                            // Convert byte array to string message. 						
-                            string serverMessage = Encoding.ASCII.GetString(incommingData);
-                            try
+                            int length;
+                            // Read incomming stream into byte arrary. 					
+                            while ((length = stream.Read(bytes, 0, bytes.Length)) != 0)
                             {
-                                Dictionary<string, string> response =
-                                    JsonSerializer.Deserialize<Dictionary<string, string>>(serverMessage);
-                                response["color"] = response["color"].Replace("RGBA(", "").Replace(")", "");
-                                string[] color = response["color"].Split(',');
-                                Color clr = Color.FromArgb(Convert.ToInt32(color[3]), Convert.ToInt32(color[0]), Convert.ToInt32(color[1]), Convert.ToInt32(color[2]));
-                                ConsoleColor oldcol = Console.ForegroundColor;
-                                Console.ForegroundColor = Program.FromHex(clr.Name);
-                                Console.WriteLine($"[{DateTime.Now.Hour}:{DateTime.Now.Minute}:{DateTime.Now.Second}] " + response["message"]);
-                                Console.ForegroundColor = oldcol;
-                            }
-                            catch (JsonException ex) //so the console doesnt crash when json breaks
-                            {
-                                ConsoleColor oldcol = Console.ForegroundColor;
-                                Console.ForegroundColor = ConsoleColor.Red;
-                                Console.WriteLine($"[{DateTime.Now.Hour}:{DateTime.Now.Minute}:{DateTime.Now.Second}] " + serverMessage);
-                                Console.ForegroundColor = oldcol;
+                                var incommingData = new byte[length];
+                                Array.Copy(bytes, 0, incommingData, 0, length);
+                                // Convert byte array to string message. 						
+                                string serverMessage = Encoding.ASCII.GetString(incommingData);
+                                try
+                                {
+                                    Dictionary<string, string> response = JsonSerializer.Deserialize<Dictionary<string, string>>(serverMessage);
+                                    response["color"] = response["color"].Replace("RGBA(", "").Replace(")", "");
+                                    string[] color = response["color"].Split(',');
+                                    Color clr = Color.FromArgb(Convert.ToInt32(color[3]), Convert.ToInt32(color[0]), Convert.ToInt32(color[1]), Convert.ToInt32(color[2]));
+                                    ConsoleColor oldcol = Console.ForegroundColor;
+                                    Console.ForegroundColor = Program.FromHex(clr.Name);
+                                    Console.WriteLine($"[{DateTime.Now.Hour}:{DateTime.Now.Minute}:{DateTime.Now.Second}] " + response["message"]);
+                                    Console.ForegroundColor = oldcol;
+                                }
+                                catch (JsonException ex) //so the console doesnt crash when json breaks
+                                {
+                                    ConsoleColor oldcol = Console.ForegroundColor;
+                                    Console.ForegroundColor = ConsoleColor.Red;
+                                    Console.WriteLine(
+                                        $"[{DateTime.Now.Hour}:{DateTime.Now.Minute}:{DateTime.Now.Second}] " +
+                                        serverMessage);
+                                    Console.ForegroundColor = oldcol;
+                                }
                             }
                         }
                     }
+                    Thread.Sleep(1);
                 }
             }
             catch (SocketException socketException)
