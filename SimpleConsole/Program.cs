@@ -130,12 +130,9 @@ namespace SCPET_Server
                 }
                 
                 ProcessStartInfo info2 = new ProcessStartInfo(Path.GetFullPath(command), string.Join(' ', cmdargs));
-                //if (string.IsNullOrWhiteSpace(GetArg("-gameoutput")))
-                {
-                    info2.RedirectStandardError = true;
-                    info2.RedirectStandardOutput = true;
-                }
-
+                info2.RedirectStandardError = true;
+                info2.RedirectStandardOutput = true;
+                
                 using (Process cmd = Process.Start(info2))
                 {
                     console = new TcpConsoleClient();
