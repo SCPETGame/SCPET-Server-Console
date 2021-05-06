@@ -19,7 +19,6 @@ namespace SCPET_Server
         public static bool portfound = true;
         public static TcpConsoleClient console;
         private static Thread inputthread;
-        public static Process gameprocess;
 
         static void Main(string[] args)
         {
@@ -55,6 +54,11 @@ namespace SCPET_Server
                 string command = string.Empty;
 
 
+                if (!Directory.Exists("logs"))
+                {
+                    Console.WriteLine("Logs folder not found, creating");
+                    Directory.CreateDirectory("logs");
+                }
 
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
@@ -68,8 +72,11 @@ namespace SCPET_Server
                         command = file;
                         cmdargs.Add("-consoleport");
                         cmdargs.Add(port.ToString());
-                        cmdargs.Add("-logfile");
-                        cmdargs.Add("logs/SCP-ETServerLog-" + DateTime.UtcNow.Ticks + ".txt");
+                        if (GetArg("-gameoutput") != "true")
+                        {
+                            cmdargs.Add("-logfile");
+                            cmdargs.Add("logs/SCP-ETServerLog-" + DateTime.UtcNow.Ticks + ".txt");
+                        }
                     }
                     else
                     {
@@ -80,8 +87,11 @@ namespace SCPET_Server
                         command = file;
                         cmdargs.Add("-consoleport");
                         cmdargs.Add(port.ToString());
-                        cmdargs.Add("-logfile");
-                        cmdargs.Add(GetArg("-gamelocation") + "/logs/SCP-ETServerLog-" + DateTime.UtcNow.Ticks + ".txt");
+                        if (GetArg("-gameoutput") != "true")
+                        {
+                            cmdargs.Add("-logfile");
+                            cmdargs.Add(GetArg("-gamelocation") + "/logs/SCP-ETServerLog-" + DateTime.UtcNow.Ticks + ".txt");
+                        }
                     }
                 }
                 else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
@@ -96,8 +106,11 @@ namespace SCPET_Server
                         command = file;
                         cmdargs.Add("-consoleport");
                         cmdargs.Add(port.ToString());
-                        cmdargs.Add("-logfile");
-                        cmdargs.Add("logs/SCP-ETServerLog-" + DateTime.UtcNow.Ticks + ".txt");
+                        if (GetArg("-gameoutput") != "true")
+                        {
+                            cmdargs.Add("-logfile");
+                            cmdargs.Add("logs/SCP-ETServerLog-" + DateTime.UtcNow.Ticks + ".txt");
+                        }
                     }
                     else
                     {
@@ -108,12 +121,20 @@ namespace SCPET_Server
                         command = file;
                         cmdargs.Add("-consoleport");
                         cmdargs.Add(port.ToString());
-                        cmdargs.Add("-logfile");
-                        cmdargs.Add(GetArg("-gamelocation") + "/logs/SCP-ETServerLog-" + DateTime.UtcNow.Ticks + ".txt");
+                        if (GetArg("-gameoutput") != "true")
+                        {
+                            cmdargs.Add("-logfile");
+                            cmdargs.Add(GetArg("-gamelocation") + "/logs/SCP-ETServerLog-" + DateTime.UtcNow.Ticks + ".txt");
+                        }
                     }
                 }
-
+                
                 ProcessStartInfo info2 = new ProcessStartInfo(Path.GetFullPath(command), string.Join(' ', cmdargs));
+                //if (string.IsNullOrWhiteSpace(GetArg("-gameoutput")))
+                {
+                    info2.RedirectStandardError = true;
+                    info2.RedirectStandardOutput = true;
+                }
 
                 using (Process cmd = Process.Start(info2))
                 {
@@ -122,27 +143,52 @@ namespace SCPET_Server
                     AppDomain.CurrentDomain.DomainUnload += (s, e) => { cmd.Kill(); cmd.WaitForExit(); };
                     AppDomain.CurrentDomain.ProcessExit += (s, e) => { cmd.Kill(); cmd.WaitForExit(); };
                     AppDomain.CurrentDomain.UnhandledException += (s, e) => { cmd.Kill(); cmd.WaitForExit(); };
-                    listeninput();
+                    cmd.ErrorDataReceived += (sender, args) =>
+                    {
+                        if (string.IsNullOrWhiteSpace(args.Data))
+                            return;
+                        Console.WriteLine($"[GAME-ERR] {args.Data}");
+                    };
+                    cmd.OutputDataReceived += (sender, args) =>
+                    {
+                        if (string.IsNullOrWhiteSpace(args.Data))
+                            return;
+                        Console.WriteLine($"[GAME-OUT] {args.Data}");
+                    };
+
+                    cmd.Exited += (sender, arg) =>
+                    {
+                        Console.WriteLine("Game process has exited");
+                        Thread.Sleep(1000);
+                        Environment.Exit(1);
+                    };
+
+                    cmd.BeginErrorReadLine();
+                    cmd.BeginOutputReadLine();
+                    
+                    listeninput(cmd);
                 }
             }
         }
 
-        public static void listeninput()
+        public static void listeninput(Process gameprocess)
         {
             while (true)
             {
                 string line = Console.ReadLine(); // Get string from user
-                if (line == "exit") // Check string
+                if (line == "exit" || line == "stop") // Check string
                 {
-                    break;
+                    Console.WriteLine("Shutting down, killing server...");
+                    Console.WriteLine("stop");
+                    Thread.Sleep(1000);
+                    gameprocess.Kill();
+                    gameprocess.WaitForExit();
+                    Environment.Exit(0);
                 }
 
                 Console.WriteLine(">" + line);
                 console.SendMessage(line);
             }
-
-            Console.WriteLine("Shutting down, killing server...");
-            gameprocess.Kill();
         }
 
         public static string GetArg(string argname)
