@@ -15,6 +15,7 @@ namespace SCPET_Server
     class Program
     {
         public static int port = 0;
+        public static string IP = "localhost";
         public static bool portfound = true;
         public static TcpConsoleClient console;
         private static Thread inputthread;
@@ -23,15 +24,26 @@ namespace SCPET_Server
         {
             IPGlobalProperties ipGlobalProperties = IPGlobalProperties.GetIPGlobalProperties();
             TcpConnectionInformation[] tcpConnInfoArray = ipGlobalProperties.GetActiveTcpConnections();
-            //look for a port that is not in use
-            port = new Random().Next(50000, 60000);
-            foreach (TcpConnectionInformation tcpi in tcpConnInfoArray)
+            IP = GetArg("-ip");
+            if (string.IsNullOrEmpty(IP))
+                IP = "127.0.0.1";
+            string tempport = GetArg("-port");
+            if (!string.IsNullOrEmpty(tempport) && int.TryParse(tempport, out port))
             {
-                if (tcpi.LocalEndPoint.Port == port)
+                portfound = true;
+            }
+            else
+            {
+                //look for a port that is not in use
+                port = new Random().Next(50000, 60000);
+                foreach (TcpConnectionInformation tcpi in tcpConnInfoArray)
                 {
-                    portfound = false;
-                    Console.WriteLine("console port was already in use");
-                    break;
+                    if (tcpi.LocalEndPoint.Port == port)
+                    {
+                        portfound = false;
+                        Console.WriteLine("console port was already in use");
+                        break;
+                    }
                 }
             }
 
