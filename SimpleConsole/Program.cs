@@ -101,7 +101,7 @@ namespace SCPET_Server
                     {
                         Console.WriteLine("Starting game server...");
 
-                        string file = "scp_et.x86_64";
+                        string file = "SCP_ET.x86_64";
                         Console.WriteLine(file);
                         command = file;
                         cmdargs.Add("-consoleport");
