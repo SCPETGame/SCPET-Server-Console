@@ -37,7 +37,7 @@ jobs:
       run: dotnet publish ${{ github.workspace }}/SimpleConsole/SCPET-Server.csproj -r ${{ matrix.target }} -c release --self-contained true -p:PublishSingleFile=true -p:IncludeAllContentForSelfExtract=false -o "${{ github.workspace }}/builds/${{ matrix.framework }}/${{ matrix.target }}"
 
     - name: Upload ${{ matrix.target }} Build
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: SCP-ET-Server-${{ matrix.target }}-${{ matrix.framework }}
         path: ${{ github.workspace }}/builds/${{ matrix.framework }}/${{ matrix.target }}
